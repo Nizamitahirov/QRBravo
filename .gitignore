@@ -1,3 +1,14 @@
+# Node.js dependencies
 node_modules/
+npm-debug.log*
+
+# Local settings
 local.settings.json
+
+# Logs and environment files
 *.log
+.env
+
+# Azure Function artifacts
+*.zip
+*.bak
