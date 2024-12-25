@@ -1,58 +1,41 @@
-const express = require('express');
-const bodyParser = require('body-parser');
 const QRCode = require('qrcode');
-const PDFDocument = require('pdfkit');
-const fs = require('fs');
 
-const app = express();
-app.use(bodyParser.json());
+module.exports = async function (context, req) {
+    context.log('JavaScript HTTP trigger function processed a request.');
 
-// Function to generate QR code
-async function generateQRCode(link) {
-    try {
-        return await QRCode.toDataURL(link); // Generate QR Code in Base64 format
-    } catch (err) {
-        console.error('Error generating QR code:', err);
-        throw err;
+    // Get the text to encode from the query parameter or request body
+    const text = (req.query.text || (req.body && req.body.text));
+
+    if (!text) {
+        context.res = {
+            status: 400,
+            body: "Please provide a text parameter in the query string or request body"
+        };
+        return;
     }
-}
-
-// Function to generate PDF
-async function createPDF(qrCodeData, outputPath, details) {
-    const today = new Date();
-    const formattedDate = `${today.getDate()}-${today.getMonth() + 1}-${today.getFullYear()}`;
-
-    const doc = new PDFDocument({ size: [288, 432] }); // Zebra printer size (4x6 inches)
-    doc.pipe(fs.createWriteStream(outputPath));
-
-    // Add QR Code
-    doc.image(Buffer.from(qrCodeData.split(',')[1], 'base64'), 50, 50, { width: 200, height: 200 });
-
-    // Add details
-    doc.fontSize(12).text(`Planogram Name: ${details.planogramName}`, 50, 270);
-    doc.text(`Published Date: ${formattedDate}`, 50, 290);
-    doc.text(`Store: ${details.store}`, 50, 310);
-
-    doc.end();
-}
-
-// HTTP endpoint for Azure Function
-app.post('/api/generate', async (req, res) => {
-    const { link, details } = req.body;
 
     try {
-        const qrCodeData = await generateQRCode(link);
-        const outputPath = `/tmp/${details.store}_price_tag.pdf`;
-        await createPDF(qrCodeData, outputPath, details);
+        // Generate QR code as data URL
+        const dataUrl = await QRCode.toDataURL(text, {
+            errorCorrectionLevel: 'H',
+            margin: 1,
+            width: 300
+        });
 
-        res.status(200).send({ message: 'PDF generated successfully', outputPath });
-    } catch (err) {
-        console.error('Error generating PDF:', err);
-        res.status(500).send({ error: 'Failed to generate PDF' });
+        // Convert data URL to buffer
+        const buffer = Buffer.from(dataUrl.split(',')[1], 'base64');
+
+        context.res = {
+            status: 200,
+            body: buffer,
+            headers: {
+                'Content-Type': 'image/png'
+            }
+        };
+    } catch (error) {
+        context.res = {
+            status: 500,
+            body: "Error generating QR code: " + error.message
+        };
     }
-});
-
-const port = process.env.PORT || 3000;
-app.listen(port, () => {
-    console.log(`Server is running on port ${port}`);
-});
+};
