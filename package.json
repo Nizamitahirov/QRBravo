@@ -1,23 +1,8 @@
 {
-  "name": "qr-code-pdf-generator",
-  "version": "1.0.0",
-  "description": "An Azure Function App to generate QR codes and create PDFs.",
-  "main": "index.js",
-  "scripts": {
-    "start": "node index.js",
-    "build": "echo 'Building project...'", // Placeholder for build step
-    "test": "echo 'No tests defined'"     // Replace with test framework as needed
-  },
-  "engines": {
-    "node": ">=20.0.0"
-  },
-  "dependencies": {
-    "express": "^4.18.2",
-    "body-parser": "^1.20.2",
-    "qrcode": "^1.5.0",
-    "pdfkit": "^0.13.0"
-  },
-  "devDependencies": {},
-  "author": "Nizami",
-  "license": "MIT"
+    "name": "qr-code-generator",
+    "version": "1.0.0",
+    "description": "Azure Function QR Code Generator",
+    "dependencies": {
+        "qrcode": "^1.5.3"
+    }
 }
