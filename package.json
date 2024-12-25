@@ -4,18 +4,18 @@
   "description": "An Azure Function App to generate QR codes and create PDFs.",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js",        // Starts the application
-    "build": "echo 'No build step required'", // Optional, for compatibility with workflows
-    "test": "echo 'No tests defined'"        // Optional, replace with your test framework if needed
+    "start": "node index.js",
+    "build": "echo 'Building project...'", // Placeholder for build step
+    "test": "echo 'No tests defined'"     // Replace with test framework as needed
   },
   "engines": {
-    "node": ">=20.0.0"  // Ensures compatibility with Node.js 20+
+    "node": ">=20.0.0"
   },
   "dependencies": {
-    "express": "^4.18.2",          // Web framework for HTTP requests
-    "body-parser": "^1.20.2",      // Middleware to parse JSON requests
-    "qrcode": "^1.5.0",            // QR Code generation library
-    "pdfkit": "^0.13.0"            // PDF generation library
+    "express": "^4.18.2",
+    "body-parser": "^1.20.2",
+    "qrcode": "^1.5.0",
+    "pdfkit": "^0.13.0"
   },
   "devDependencies": {},
   "author": "Nizami",
