@@ -1,0 +1,15 @@
+{
+  "name": "qr-code-pdf-generator",
+  "version": "1.0.0",
+  "description": "Azure Function App to generate QR codes and PDFs.",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "body-parser": "^1.20.1",
+    "qrcode": "^1.5.0",
+    "pdfkit": "^0.12.1"
+  }
+}
