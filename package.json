@@ -4,13 +4,9 @@
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
-    "test": "exit 0",
-    "build": "echo 'No build required'"
+    "test": "echo 'No tests specified' && exit 0",
+    "build": "echo 'No build step needed'"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "description": "",
   "dependencies": {
     "qrcode": "^1.5.4",
     "@azure/cosmos": "^3.17.3"
