@@ -1,41 +1,69 @@
-const QRCode = require('qrcode');
+const QRCode = require("qrcode");
+const { CosmosClient } = require("@azure/cosmos");
 
 module.exports = async function (context, req) {
-    context.log('JavaScript HTTP trigger function processed a request.');
+  try {
+    const { name, store } = req.body;
 
-    // Get the text to encode from the query parameter or request body
-    const text = (req.query.text || (req.body && req.body.text));
-
-    if (!text) {
-        context.res = {
-            status: 400,
-            body: "Please provide a text parameter in the query string or request body"
-        };
-        return;
+    if (!name || !store) {
+      context.res = {
+        status: 400,
+        body: { message: "Name və store parametrləri tələb olunur" },
+      };
+      return;
     }
 
-    try {
-        // Generate QR code as data URL
-        const dataUrl = await QRCode.toDataURL(text, {
-            errorCorrectionLevel: 'H',
-            margin: 1,
-            width: 300
-        });
+    // Cosmos DB qoşulma
+    const client = new CosmosClient({
+      endpoint: process.env.COSMOS_ENDPOINT,
+      key: process.env.COSMOS_KEY,
+    });
 
-        // Convert data URL to buffer
-        const buffer = Buffer.from(dataUrl.split(',')[1], 'base64');
+    const database = client.database(process.env.COSMOS_DATABASE);
+    const container = database.container(process.env.COSMOS_CONTAINER);
 
-        context.res = {
-            status: 200,
-            body: buffer,
-            headers: {
-                'Content-Type': 'image/png'
-            }
-        };
-    } catch (error) {
-        context.res = {
-            status: 500,
-            body: "Error generating QR code: " + error.message
-        };
-    }
+    // QR kod yaratma
+    const qrData = `Name:${name},Store:${store}`;
+    const qrDataUrl = await QRCode.toDataURL(qrData, {
+      errorCorrectionLevel: "H",
+      margin: 1,
+      width: 250,
+    });
+
+    const currentDate = new Date()
+      .toLocaleDateString("en-GB", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "2-digit",
+      })
+      .replace(/\//g, "-");
+
+    // Cosmos DB-də saxlama
+    const item = {
+      name,
+      store,
+      qrCode: qrDataUrl,
+      publishedDate: currentDate,
+      createdAt: new Date().toISOString(),
+    };
+
+    const { resource } = await container.items.create(item);
+
+    context.res = {
+      status: 200,
+      body: {
+        id: resource.id,
+        name: resource.name,
+        store: resource.store,
+        publishedDate: resource.publishedDate,
+        qrCode: resource.qrCode,
+      },
+    };
+  } catch (error) {
+    context.log.error("Error:", error);
+    context.res = {
+      status: 500,
+      body: { message: "Server xətası" },
+    };
+  }
 };
