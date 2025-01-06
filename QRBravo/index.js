@@ -1,8 +1,19 @@
 const QRCode = require("qrcode");
 
 module.exports = async function (context, req) {
+  // Accept URL from query parameters or request body
+  const url = req.query.url || (req.body && req.body.url);
   const name = req.query.name || (req.body && req.body.name);
   const store = req.query.store || (req.body && req.body.store);
+
+  // Validate input parameters
+  if (!url) {
+    context.res = {
+      status: 400,
+      body: "Please provide a 'url' parameter",
+    };
+    return;
+  }
 
   if (!name || !store) {
     context.res = {
@@ -13,13 +24,14 @@ module.exports = async function (context, req) {
   }
 
   try {
-    const qrData = `Name:${name},Store:${store}`;
-    const qrDataUrl = await QRCode.toDataURL(qrData, {
+    // Generate QR code for the provided URL
+    const qrDataUrl = await QRCode.toDataURL(url, {
       errorCorrectionLevel: "H",
       margin: 1,
       width: 250,
     });
 
+    // Prepare the current date in dd-mm-yy format
     const currentDate = new Date()
       .toLocaleDateString("en-GB", {
         day: "2-digit",
@@ -28,11 +40,12 @@ module.exports = async function (context, req) {
       })
       .replace(/\//g, "-");
 
+    // HTML content with the QR code and the parameters
     const html = `
         <!DOCTYPE html>
         <html>
         <head>
-            <style>
+           <style>
                 body {
                     margin: 0;
                     padding: 0;
@@ -54,7 +67,6 @@ module.exports = async function (context, req) {
                     align-items: center;
                     position: relative;
                 }
-               
                 .title {
                     text-align: center;
                     margin-bottom: 62px;
@@ -70,8 +82,9 @@ module.exports = async function (context, req) {
                     width: 280px;
                     height: 280px;
                 }
-                    .content{
-                    width:690px}
+                .content {
+                    width: 690px;
+                }
                 .footer {
                     display: flex;
                     justify-content: space-between;
@@ -84,7 +97,7 @@ module.exports = async function (context, req) {
         <body>
             <div class="qr-container">
                 <div class="content">
-                    <div class="title">
+                   <div class="title">
                         <span class="bold">Planogram Name:</span> ${name}
                     </div>
                     <img src="${qrDataUrl}" class="qr-image" alt="QR Code" />
@@ -96,11 +109,15 @@ module.exports = async function (context, req) {
                             <span class="bold">Store:</span> ${store}
                         </div>
                     </div>
+                    <div style="text-align: center; margin-top: 20px;">
+                        <a href="${url}" target="_blank">Click here to visit the URL</a>
+                    </div>
                 </div>
             </div>
         </body>
         </html>`;
 
+    // Return the HTML response with the QR code
     context.res = {
       status: 200,
       body: Buffer.from(html),
@@ -109,6 +126,7 @@ module.exports = async function (context, req) {
       },
     };
   } catch (error) {
+    // Handle any errors that occur during QR code generation
     context.res = {
       status: 500,
       body: "Error generating QR code: " + error.message,
