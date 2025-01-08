@@ -10,8 +10,9 @@
   "author": "",
   "license": "ISC",
   "description": "",
-  "dependencies": {
-    "puppeteer": "^23.11.1",
-    "qrcode": "^1.5.4"
+ "dependencies": {
+    "qrcode": "^1.5.3",
+    "puppeteer-core": "^21.5.0",
+    "chrome-aws-lambda": "^10.1.0"
   }
 }
