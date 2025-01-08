@@ -10,69 +10,59 @@ const generateHtml = (qrDataUrl, name, store, url, currentDate) => `
         @page {
             size: 770px 487px;
             margin: 0;
+            
         }
-        html, body {
-            margin: 0;
-            padding: 0;
-            width: 100vw;
-            height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background: white;
-        }
-        .qr-container {
-            width: 770px;
-            height: 487px;
-            padding: 30px;
-            border: 1px solid #000;
-            background: white;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            position: relative;
-        }
-        .title {
-            text-align: center;
-            margin-top: 12px;
-            margin-bottom: 62px;
-            font-size: 25px;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-        }
-        .bold {
-            font-weight: bold;
-            font-size: 25px;
-        }
-        .qr-image {
-            display: block;
-            margin: 0 auto;
-            width: 280px;
-            height: 280px;
-        }
-        .content {
-            width: 690px;
-        }
-        .footer {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 76px;
-            font-size: 25px;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-        }
-        .download-btn {
-            position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            padding: 10px 20px;
-            font-size: 16px;
-            cursor: pointer;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            text-decoration: none;
-        }
+        
+ 
+
+         html,   body {
+                  margin: 0;
+                  padding: 0;
+                  width: 100vw;
+                  height: 100vh;
+                  display: flex;
+                  justify-content: center;
+                  align-items: center;
+                  background: white;
+              }
+              .qr-container {
+                  width: 770px;
+                  height: 487px;
+                  padding: 30px;
+                  border: 1px solid #000;
+                  background: white;
+                  display: flex;
+                  justify-content: center;
+                  align-items: center;
+                  position: relative;
+              }
+              .title {
+                  text-align: center;
+                  margin-top:12px;
+                  margin-bottom: 62px;
+                  font-size: 25px;
+                  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+              }
+              .bold {
+                  font-weight: bold;
+                  font-size: 25px;
+              }
+              .qr-image {
+                  display: block;
+                  margin: 0 auto;
+                  width: 280px;
+                  height: 280px;
+              }
+              .content {
+                  width: 690px;
+              }
+              .footer {
+                  display: flex;
+                  justify-content: space-between;
+                  margin-top: 76px;
+                  font-size: 25px;
+                  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+              }
         @media print {
             .no-print {
                 display: none;
@@ -80,22 +70,10 @@ const generateHtml = (qrDataUrl, name, store, url, currentDate) => `
             html, body, .qr-container {
                 width: 770px !important;
                 height: 487px !important;
-                border: none;
+                 border: none;
             }
         }
     </style>
-    <script>
-        function downloadPDF() {
-            // Get current URL parameters
-            const urlParams = new URLSearchParams(window.location.search);
-            // Add download parameter
-            urlParams.append('download', 'true');
-            // Create new URL with download parameter
-            const downloadUrl = window.location.pathname + '?' + urlParams.toString();
-            // Open in new tab to trigger download
-            window.open(downloadUrl, '_blank');
-        }
-    </script>
 </head>
 <body>
     <div class="qr-container">
@@ -117,14 +95,15 @@ const generateHtml = (qrDataUrl, name, store, url, currentDate) => `
             </div>
         </div>
     </div>
-    <button onclick="downloadPDF()" class="download-btn no-print">
-        Download PDF
-    </button>
+    <div style="position: fixed; bottom: 20px; text-align: center; width: 100%;" class="no-print">
+        <button onclick="window.print()" style="padding: 10px 20px; font-size: 16px; cursor: pointer;">
+            Download PDF
+        </button>
+    </div>
 </body>
 </html>`;
 
-// Generate PDF with exact dimensions
-const generatePDF = async (html) => {
+async function generatePDF(html) {
   const browser = await puppeteer.launch({
     headless: true,
     args: ["--no-sandbox", "--disable-setuid-sandbox"],
@@ -132,8 +111,9 @@ const generatePDF = async (html) => {
 
   const page = await browser.newPage();
 
+  // Force exact page size
   await page.setViewport({
-    width: 770,
+    width: 766,
     height: 487,
     deviceScaleFactor: 1,
   });
@@ -143,46 +123,49 @@ const generatePDF = async (html) => {
     timeout: 60000,
   });
 
+  // Additional CSS to force size
   await page.addStyleTag({
     content: `
-      @page {
-        size: 770px 487px;
-        margin: 0;
-      }
-      html, body {
-        margin: 0;
-        padding: 0;
-        width: 770px;
-        height: 487px;
-        overflow: hidden;
-      }
-      .qr-container {
-        width: 770px;
-        height: 487px;
-      }
-    `,
+            @page {
+                size: 766px 487px !important;
+                margin: 0 !important;
+            }
+            html, body {
+                margin: 0 !important;
+                padding: 0 !important;
+                width: 766px !important;
+                height: 487px !important;
+            }
+        `,
   });
 
+  // Force viewport size through JavaScript
   await page.evaluate(() => {
-    const docEl = document.documentElement;
-    const body = document.body;
-    docEl.style.width = "770px";
-    docEl.style.height = "487px";
-    body.style.width = "770px";
-    body.style.height = "487px";
-    body.style.overflow = "hidden";
+    document.documentElement.style.width = "770px";
+    document.documentElement.style.height = "487px";
+    document.body.style.width = "770px";
+    document.body.style.height = "487px";
   });
 
+  // Generate PDF with exact dimensions
   const pdfBuffer = await page.pdf({
+    width: "770px",
+    height: "487px",
     printBackground: true,
     preferCSSPageSize: true,
-    margin: { top: 0, right: 0, bottom: 0, left: 0 },
+    margin: {
+      top: "0",
+      right: "0",
+      bottom: "0",
+      left: "0",
+    },
   });
 
   await browser.close();
   return pdfBuffer;
-};
+}
 
+// Format current date
 function formatDate() {
   return new Date()
     .toLocaleDateString("en-GB", {
@@ -193,11 +176,12 @@ function formatDate() {
     .replace(/\//g, "-");
 }
 
+// Main Azure Function
 module.exports = async function (context, req) {
   const url = req.query.url || (req.body && req.body.url);
   const name = req.query.name || (req.body && req.body.name);
   const store = req.query.store || (req.body && req.body.store);
-  const download = req.query.download === "true";
+  const format = req.query.format || (req.body && req.body.format) || "html";
 
   if (!url) {
     context.res = {
@@ -225,14 +209,14 @@ module.exports = async function (context, req) {
     const currentDate = formatDate();
     const html = generateHtml(qrDataUrl, name, store, url, currentDate);
 
-    if (download) {
+    if (format === "pdf") {
       const pdfBuffer = await generatePDF(html);
       context.res = {
         status: 200,
         body: pdfBuffer,
         headers: {
           "Content-Type": "application/pdf",
-          "Content-Disposition": "attachment; filename=qr-code.pdf",
+          "Content-Disposition": "attachment; filename=output.pdf",
         },
       };
     } else {
