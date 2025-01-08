@@ -125,12 +125,18 @@ const generateHtml = (qrDataUrl, name, store, url, currentDate) => `
 
 // Generate PDF with exact dimensions
 const generatePDF = async (html) => {
-  const browser = await puppeteer.launch({
-    headless: true,
-    args: ["--no-sandbox", "--disable-setuid-sandbox"],
-  });
+   const browser = await puppeteer.launch({
+      headless: true,
+      args: [
+        '--no-sandbox',
+        '--disable-setuid-sandbox',
+        '--disable-dev-shm-usage',
+        '--disable-gpu'
+      ],
+      executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || null
+    });
 
-  const page = await browser.newPage();
+    const page = await browser.newPage();
 
   await page.setViewport({
     width: 770,
