@@ -85,7 +85,7 @@ const generateHtml = (qrDataUrl, name, store, url, currentDate) => `
             <img src="${qrDataUrl}" class="qr-image" alt="QR Code" />
             <div class="footer">
                 <div>
-                    <span class="bold">Published Date:</span> ${currentDate}
+                   ${currentDate}
                 </div>
                 <div>
                     <span class="bold">Store:</span> ${store}
