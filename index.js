@@ -59,7 +59,7 @@ const generateHtml = (qrDataUrl, name, store, url, currentDate) => `
               .footer {
                   display: flex;
                   justify-content: space-between;
-                  margin-top: 76px;
+                  margin-top: 38px;
                   font-size: 25px;
                   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
               }
@@ -79,7 +79,7 @@ const generateHtml = (qrDataUrl, name, store, url, currentDate) => `
     <div class="qr-container">
         <div class="content">
             <div class="title">
-                <span class="bold">Planogram Name:</span> ${name}
+                <span class="bold"> Name:</span> ${name}
             </div>
             <img src="${qrDataUrl}" class="qr-image" alt="QR Code" />
             <div class="footer">
